@@ -299,6 +299,7 @@ export default async function AthletePage({ params }: AthletePageProps) {
         <AthleteMedia
           gallery={athlete.gallery}
           highlightVideo={athlete.highlightVideo}
+          highlightVideos={athlete.highlightVideos}
           athleteName={athlete.name}
         />
 

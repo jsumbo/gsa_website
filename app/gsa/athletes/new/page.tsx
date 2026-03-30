@@ -4,7 +4,7 @@ import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Plus, X, Upload, ChevronDown } from "lucide-react"
+import { ArrowLeft, Plus, X, Upload, ChevronDown, Film } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AdminShell } from "@/components/admin-shell"
 import { createAthlete } from "@/lib/firestore"
@@ -16,6 +16,29 @@ const POSITIONS = [
   "Defensive Midfielder", "Central Midfielder", "Attacking Midfielder",
   "Right Winger", "Left Winger", "Forward", "Striker",
 ]
+
+interface VideoEntry {
+  label: string
+  mode: "youtube" | "upload"
+  url: string
+  file: File | null
+}
+
+function toEmbedUrl(url: string) {
+  if (url.includes("youtube.com/embed/")) return url
+  const v =
+    url.match(/[?&]v=([^&]+)/)?.[1] ??
+    url.match(/youtu\.be\/([^?]+)/)?.[1]
+  return v ? `https://www.youtube.com/embed/${v}` : url
+}
+
+function isVideoFile(file: File | null) {
+  return file?.type.startsWith("video/") ?? false
+}
+
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|mov|avi|m4v)(\?|$)/i.test(url)
+}
 
 export default function NewAthletePage() {
   return (
@@ -54,7 +77,10 @@ function AthleteForm() {
   const [instagram, setInstagram] = useState("")
   const [twitter, setTwitter] = useState("")
   const [facebook, setFacebook] = useState("")
-  const [highlightVideo, setHighlightVideo] = useState("")
+
+  const [highlightVideos, setHighlightVideos] = useState<VideoEntry[]>([
+    { label: "", mode: "youtube", url: "", file: null },
+  ])
 
   const [gallery, setGallery] = useState<string[]>([])
   const [galleryFiles, setGalleryFiles] = useState<(File | null)[]>([])
@@ -78,10 +104,19 @@ function AthleteForm() {
     const files = Array.from(e.target.files || [])
     files.forEach((file) => {
       setGalleryFiles((prev) => [...prev, file])
-      const reader = new FileReader()
-      reader.onload = (ev) => setGallery((prev) => [...prev, ev.target?.result as string])
-      reader.readAsDataURL(file)
+      if (file.type.startsWith("video/")) {
+        setGallery((prev) => [...prev, URL.createObjectURL(file)])
+      } else {
+        const reader = new FileReader()
+        reader.onload = (ev) => setGallery((prev) => [...prev, ev.target?.result as string])
+        reader.readAsDataURL(file)
+      }
     })
+  }
+
+  const removeGalleryItem = (i: number) => {
+    setGallery((prev) => prev.filter((_, idx) => idx !== i))
+    setGalleryFiles((prev) => prev.filter((_, idx) => idx !== i))
   }
 
   const addAchievement = () => setAchievements((prev) => [...prev, { year: "", title: "" }])
@@ -89,12 +124,19 @@ function AthleteForm() {
   const updateAchievement = (i: number, field: "year" | "title", val: string) =>
     setAchievements((prev) => prev.map((a, idx) => idx === i ? { ...a, [field]: val } : a))
 
+  const addVideo = () =>
+    setHighlightVideos((prev) => [...prev, { label: "", mode: "youtube", url: "", file: null }])
+  const removeVideo = (i: number) =>
+    setHighlightVideos((prev) => prev.filter((_, idx) => idx !== i))
+  const updateVideo = (i: number, patch: Partial<VideoEntry>) =>
+    setHighlightVideos((prev) => prev.map((v, idx) => idx === i ? { ...v, ...patch } : v))
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     try {
       const ts = Date.now()
-      const ext = (f: File) => f.name.split(".").pop() ?? "jpg"
+      const ext = (f: File) => f.name.split(".").pop() ?? "bin"
 
       const imageUrl = mainImageFile
         ? await uploadImage(mainImageFile, `athletes/${slug}/profile_${ts}.${ext(mainImageFile)}`)
@@ -107,6 +149,18 @@ function AthleteForm() {
             ? uploadImage(file, `athletes/${slug}/gallery_${ts}_${i}.${ext(file)}`)
             : Promise.resolve(preview)
         })
+      )
+
+      const savedVideos = await Promise.all(
+        highlightVideos
+          .filter((v) => v.url || v.file)
+          .map(async (v) => {
+            if (v.mode === "upload" && v.file) {
+              const url = await uploadImage(v.file, `athletes/${slug}/highlight_${ts}_${Date.now()}.${ext(v.file)}`)
+              return { url, ...(v.label ? { label: v.label } : {}) }
+            }
+            return { url: toEmbedUrl(v.url), ...(v.label ? { label: v.label } : {}) }
+          })
       )
 
       await createAthlete({
@@ -127,7 +181,7 @@ function AthleteForm() {
           ...(twitter ? { twitter } : {}),
           ...(facebook ? { facebook } : {}),
         },
-        ...(highlightVideo ? { highlightVideo } : {}),
+        ...(savedVideos.length > 0 ? { highlightVideos: savedVideos } : {}),
       })
       toast.success("Athlete added to roster!")
       router.push("/gsa/athletes")
@@ -320,44 +374,130 @@ function AthleteForm() {
 
           {/* Gallery */}
           <section className="bg-background border border-border rounded-lg p-6 space-y-4">
-            <h2 className="text-lg font-semibold">Photo Gallery</h2>
+            <div>
+              <h2 className="text-lg font-semibold">Gallery</h2>
+              <p className="text-sm text-muted-foreground mt-1">Photos and videos</p>
+            </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {gallery.map((img, i) => (
-                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                  <Image src={img} alt={`Gallery ${i + 1}`} fill className="object-cover" />
-                  <button type="button" onClick={() => {
-                    setGallery((prev) => prev.filter((_, idx) => idx !== i))
-                    setGalleryFiles((prev) => prev.filter((_, idx) => idx !== i))
-                  }}
-                    className="absolute top-1 right-1 p-1 bg-background/80 rounded-full">
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
+              {gallery.map((url, i) => {
+                const isVid = isVideoFile(galleryFiles[i]) || isVideoUrl(url)
+                return (
+                  <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                    {isVid ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-neutral-900">
+                        <Film className="h-8 w-8 text-white/40" />
+                      </div>
+                    ) : (
+                      <Image src={url} alt={`Gallery ${i + 1}`} fill className="object-cover" />
+                    )}
+                    <button type="button" onClick={() => removeGalleryItem(i)}
+                      className="absolute top-1 right-1 p-1 bg-background/80 rounded-full">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )
+              })}
               <div onClick={() => galleryRef.current?.click()}
                 className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-muted-foreground transition-colors">
                 <Plus className="h-5 w-5 text-muted-foreground mb-1" />
                 <span className="text-xs text-muted-foreground">Add</span>
               </div>
             </div>
-            <input ref={galleryRef} type="file" accept="image/*" multiple onChange={handleGalleryUpload} className="hidden" />
+            <input ref={galleryRef} type="file" accept="image/*,video/*" multiple onChange={handleGalleryUpload} className="hidden" />
           </section>
 
-          {/* Social & Video */}
+          {/* Social Media */}
+          <section className="bg-background border border-border rounded-lg p-6 space-y-4">
+            <h2 className="text-lg font-semibold">Social Media</h2>
+            {[
+              { label: "Instagram URL", value: instagram, set: setInstagram, placeholder: "https://instagram.com/username" },
+              { label: "Twitter / X URL", value: twitter, set: setTwitter, placeholder: "https://twitter.com/username" },
+              { label: "Facebook URL", value: facebook, set: setFacebook, placeholder: "https://facebook.com/username" },
+            ].map(({ label, value, set, placeholder }) => (
+              <div key={label}>
+                <label className="block text-sm font-medium mb-2">{label}</label>
+                <input type="url" value={value} onChange={(e) => set(e.target.value)}
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:border-foreground focus:outline-none transition-colors"
+                  placeholder={placeholder} />
+              </div>
+            ))}
+          </section>
+
+          {/* Highlight Videos */}
           <section className="bg-background border border-border rounded-lg p-6 space-y-6">
-            <h2 className="text-lg font-semibold">Social Media &amp; Video</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">Highlight Videos</h2>
+                <p className="text-sm text-muted-foreground mt-1">YouTube links or direct video uploads</p>
+              </div>
+              <Button type="button" variant="outline" size="sm" onClick={addVideo} className="gap-1">
+                <Plus className="h-3.5 w-3.5" /> Add Video
+              </Button>
+            </div>
             <div className="space-y-4">
-              {[
-                { label: "Instagram URL", value: instagram, set: setInstagram, placeholder: "https://instagram.com/username" },
-                { label: "Twitter / X URL", value: twitter, set: setTwitter, placeholder: "https://twitter.com/username" },
-                { label: "Facebook URL", value: facebook, set: setFacebook, placeholder: "https://facebook.com/username" },
-                { label: "Highlight Video (YouTube embed URL)", value: highlightVideo, set: setHighlightVideo, placeholder: "https://www.youtube.com/embed/VIDEO_ID" },
-              ].map(({ label, value, set, placeholder }) => (
-                <div key={label}>
-                  <label className="block text-sm font-medium mb-2">{label}</label>
-                  <input type="url" value={value} onChange={(e) => set(e.target.value)}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:border-foreground focus:outline-none transition-colors"
-                    placeholder={placeholder} />
+              {highlightVideos.map((entry, i) => (
+                <div key={i} className="border border-border rounded-lg p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={entry.label}
+                      onChange={(e) => updateVideo(i, { label: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-border rounded-lg focus:border-foreground focus:outline-none transition-colors text-sm"
+                      placeholder="Label (optional) — e.g. Season Highlights 2025-26"
+                    />
+                    {highlightVideos.length > 1 && (
+                      <button type="button" onClick={() => removeVideo(i)}
+                        className="p-2 text-muted-foreground hover:text-destructive transition-colors shrink-0">
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-4">
+                    {(["youtube", "upload"] as const).map((mode) => (
+                      <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name={`video-mode-${i}`}
+                          checked={entry.mode === mode}
+                          onChange={() => updateVideo(i, { mode, url: "", file: null })}
+                          className="accent-foreground"
+                        />
+                        <span className="text-sm capitalize">{mode === "youtube" ? "YouTube" : "Upload file"}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {entry.mode === "youtube" ? (
+                    <input
+                      type="text"
+                      value={entry.url}
+                      onChange={(e) => updateVideo(i, { url: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:border-foreground focus:outline-none transition-colors text-sm"
+                      placeholder="https://www.youtube.com/watch?v=... or embed URL"
+                    />
+                  ) : entry.file ? (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <Film className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm text-muted-foreground truncate">{entry.file.name}</span>
+                      <button type="button" onClick={() => updateVideo(i, { file: null, url: "" })}
+                        className="ml-auto shrink-0">
+                        <X className="h-3.5 w-3.5 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-muted-foreground transition-colors block">
+                      <Upload className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
+                      <span className="text-xs text-muted-foreground">Click to upload video file</span>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) updateVideo(i, { file, url: URL.createObjectURL(file) })
+                        }}
+                      />
+                    </label>
+                  )}
                 </div>
               ))}
             </div>

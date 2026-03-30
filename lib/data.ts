@@ -1,3 +1,8 @@
+export interface HighlightVideo {
+  url: string
+  label?: string
+}
+
 export interface Athlete {
   id: string
   name: string
@@ -15,6 +20,7 @@ export interface Athlete {
   gallery: string[]
   socialLinks: SocialLinks
   highlightVideo?: string
+  highlightVideos?: HighlightVideo[]
   stats: AthleteStats
 }
 
