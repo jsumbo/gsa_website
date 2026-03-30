@@ -110,6 +110,7 @@ export default async function HomePage() {
                     alt={athlete.name}
                     fill
                     priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105"
                   />
 

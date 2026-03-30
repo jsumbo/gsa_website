@@ -129,8 +129,8 @@ export default async function AthletePage({ params }: AthletePageProps) {
                     src={athlete.image}
                     alt={athlete.name}
                     fill
-                    loading="eager"
                     priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover"
                   />
                   {/* Jersey number ghost */}

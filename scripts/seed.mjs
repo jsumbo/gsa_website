@@ -23,7 +23,7 @@ const athletes = [
     name: "Vasco Jacobs",
     slug: "vasco-jacobs",
     position: "Forward",
-    team: "FC Metropolis",
+    team: "Thunder FC",
     image: "/athletes/vasco-jacobs.jpg",
     number: 9,
     nationality: "Liberian",
@@ -31,7 +31,7 @@ const athletes = [
     height: "1.85m",
     preferredFoot: "Right",
     biography:
-      "Vasco Jacobs is one of the most compelling attacking talents to emerge from West Africa in recent years. Born in Monrovia, Liberia, he developed his craft at Mighty Barrolle FC — one of the country's most storied clubs — before European scouts took notice and his career crossed continents.\n\nAt FC Metropolis, Vasco has quickly become a player that opposition defences build game plans around. His combination of explosive pace off the mark, intelligent movement into channels, and composed finishing under pressure makes him a threat from multiple angles. He can finish from distance or wait for a yard of space — both outcomes tend to end the same way.\n\nOff the pitch, Vasco carries his roots with him. He returns to Monrovia each off-season to run football development camps for young players, investing in the community that shaped him. For Gayduo Sports Agency, he represents exactly what we look for: elite ability paired with genuine character.",
+      "Vasco Jacobs is one of the most compelling attacking talents to emerge from West Africa in recent years. Born in Monrovia, Liberia, he developed his craft at Mighty Barrolle FC — one of the country's most storied clubs — before European scouts took notice and his career crossed continents.\n\nAt Thunder FC, Vasco has quickly become a player that opposition defences build game plans around. His combination of explosive pace off the mark, intelligent movement into channels, and composed finishing under pressure makes him a threat from multiple angles. He can finish from distance or wait for a yard of space — both outcomes tend to end the same way.\n\nOff the pitch, Vasco carries his roots with him. He returns to Monrovia each off-season to run football development camps for young players, investing in the community that shaped him. For Gayduo Sports Agency, he represents exactly what we look for: elite ability paired with genuine character.",
     achievements: [
       { year: "2025–26", title: "League Top Scorer — 18 goals" },
       { year: "2024–25", title: "Young Player of the Season" },
@@ -55,7 +55,7 @@ const athletes = [
     name: "Alvin Martor",
     slug: "alvin-martor",
     position: "Central Midfielder",
-    team: "United Athletic",
+    team: "Professional Sports Academy",
     image: "/athletes/alvin-martor.jpg",
     number: 8,
     nationality: "Rwandan",
@@ -63,11 +63,11 @@ const athletes = [
     height: "1.78m",
     preferredFoot: "Both",
     biography:
-      "Alvin Martor is a midfielder with a rare quality: he makes the team around him better. Hailing from Kigali, Rwanda, he came through the ranks at the prestigious Kigali Football Academy, where his ability to see passes others can't even conceive of quickly set him apart from his peers.\n\nAt United Athletic, Alvin has established himself as the engine and the compass of the midfield — dictating tempo, recycling possession efficiently, and unlocking defences with precisely weighted through balls. Despite only being in his early twenties, he plays with a composure and intelligence that suggests many years of elite football ahead.\n\nHis recent first call-up to the Rwandan national team for World Cup qualifiers was a recognition long overdue. Alvin is proof that elite football talent exists across the continent — it just needs the right environment to thrive.",
+      "Alvin Martor is a midfielder with a rare quality: he makes the team around him better. Hailing from Kigali, Rwanda, he came through the ranks at the prestigious Kigali Football Academy, where his ability to see passes others can't even conceive of quickly set him apart from his peers.\n\nAt Professional Sports Academy, Alvin has established himself as the engine and the compass of the midfield — dictating tempo, recycling possession efficiently, and unlocking defences with precisely weighted through balls. Despite only being in his early twenties, he plays with a composure and intelligence that suggests many years of elite football ahead.\n\nHis recent first call-up to the Rwandan national team for World Cup qualifiers was a recognition long overdue. Alvin is proof that elite football talent exists across the continent — it just needs the right environment to thrive.",
     achievements: [
       { year: "2025–26", title: "League Assist Leader — 12 assists" },
       { year: "2025", title: "Rwanda Sports Awards — Breakthrough Athlete" },
-      { year: "2024–25", title: "United Athletic Player of the Season" },
+      { year: "2024–25", title: "Professional Sports Academy Player of the Season" },
       { year: "2024", title: "U-23 Africa Cup — Best Midfielder" },
     ],
     gallery: [
@@ -88,7 +88,7 @@ const athletes = [
     name: "Daniel Parker",
     slug: "daniel-parker",
     position: "Defensive Midfielder",
-    team: "Royal Sporting Club",
+    team: "Jovial Kids Academy",
     image: "/athletes/daniel-parker.jpg",
     number: 6,
     nationality: "Liberian",
@@ -96,10 +96,10 @@ const athletes = [
     height: "1.82m",
     preferredFoot: "Left",
     biography:
-      "Daniel Parker is the kind of player every winning team is built around but few outside the game fully appreciate. Born in Buchanan, Liberia, he grew up playing on the streets before finding his way to LISCR FC's youth academy — where his reading of the game, physical presence, and leadership instincts were quickly identified.\n\nAs vice-captain of Royal Sporting Club, Daniel is the backbone of the side. His ability to anticipate danger before it develops, win the ball back cleanly, and immediately transition into quality possession sets the standard for those around him. The league's tackling statistics tell only part of the story — his influence on structure, intensity, and mentality tells the rest.\n\nDaniel understands that football has given him a platform, and he uses it deliberately. His scholarship fund for student-athletes in Buchanan continues to open doors for young people who might otherwise have none.",
+      "Daniel Parker is the kind of player every winning team is built around but few outside the game fully appreciate. Born in Buchanan, Liberia, he grew up playing on the streets before finding his way to LISCR FC's youth academy — where his reading of the game, physical presence, and leadership instincts were quickly identified.\n\nAs vice-captain of Jovial Kids Academy, Daniel is the backbone of the side. His ability to anticipate danger before it develops, win the ball back cleanly, and immediately transition into quality possession sets the standard for those around him. The league's tackling statistics tell only part of the story — his influence on structure, intensity, and mentality tells the rest.\n\nDaniel understands that football has given him a platform, and he uses it deliberately. His scholarship fund for student-athletes in Buchanan continues to open doors for young people who might otherwise have none.",
     achievements: [
       { year: "2025–26", title: "League Team of the Season" },
-      { year: "2025", title: "Cup Winner — Royal Sporting Club" },
+      { year: "2025", title: "Cup Winner — Jovial Kids Academy" },
       { year: "2024–25", title: "Most Tackles in the League" },
       { year: "2023", title: "Liberian Premier League Champion" },
     ],
@@ -123,9 +123,9 @@ const blogPosts = [
     title: "Vasco Jacobs Signs New Multi-Year Contract Extension",
     slug: "vasco-jacobs-contract-extension",
     excerpt:
-      "Star forward Vasco Jacobs has committed his future to FC Metropolis, signing a new multi-year deal that keeps him at the club through 2029.",
+      "Star forward Vasco Jacobs has committed his future to Thunder FC, signing a new multi-year deal that keeps him at the club through 2029.",
     content:
-      "<p>FC Metropolis today confirmed that Vasco Jacobs has signed a new multi-year contract extension, keeping him at the club through 2029. The announcement puts to rest months of speculation linking the Liberian forward with several of Europe's top clubs.</p><p>The 24-year-old has been in career-defining form this season, scoring 18 goals across all competitions while adding six assists. His ability to perform consistently at the highest level — combined with his professionalism and character — made extending his contract a clear priority for the club's leadership.</p><p>We are proud to have supported Vasco through this negotiation and look forward to watching him reach new heights in the seasons ahead.</p>",
+      "<p>Thunder FC today confirmed that Vasco Jacobs has signed a new multi-year contract extension, keeping him at the club through 2029. The announcement puts to rest months of speculation linking the Liberian forward with several of Europe's top clubs.</p><p>The 24-year-old has been in career-defining form this season, scoring 18 goals across all competitions while adding six assists. His ability to perform consistently at the highest level — combined with his professionalism and character — made extending his contract a clear priority for the club's leadership.</p><p>We are proud to have supported Vasco through this negotiation and look forward to watching him reach new heights in the seasons ahead.</p>",
     featuredImage: "/blog/contract-signing.jpg",
     category: "Transfers",
     author: "Gayduo Sports Agency",
@@ -133,8 +133,8 @@ const blogPosts = [
     featured: true,
     seoTitle: "Vasco Jacobs Signs Contract Extension | Gayduo Sports Agency",
     seoDescription:
-      "Star forward Vasco Jacobs signs a new multi-year contract extension with FC Metropolis through 2029.",
-    seoKeywords: ["Vasco Jacobs", "contract extension", "FC Metropolis", "transfer news"],
+      "Star forward Vasco Jacobs signs a new multi-year contract extension with Thunder FC through 2029.",
+    seoKeywords: ["Vasco Jacobs", "contract extension", "Thunder FC", "transfer news"],
   },
   {
     id: "2",
@@ -143,7 +143,7 @@ const blogPosts = [
     excerpt:
       "Central midfielder Alvin Martor receives his first call-up to the senior national team squad for the upcoming World Cup qualifiers.",
     content:
-      "<p>Alvin Martor has been rewarded for an exceptional run of form with his first call-up to the senior national team squad for the upcoming World Cup qualifying campaign. The announcement was widely celebrated, with supporters and pundits alike having made the case for his inclusion for some time.</p><p>The 22-year-old has been United Athletic's standout performer in midfield, registering 6 goals and 12 assists this season while consistently driving the tempo of his side's best performances. His ability to combine technical quality with intelligent positioning has marked him out as one of the most complete midfielders in the division.</p><p>This call-up is a significant milestone — and one that represents the beginning, not the ceiling, of his international career.</p>",
+      "<p>Alvin Martor has been rewarded for an exceptional run of form with his first call-up to the senior national team squad for the upcoming World Cup qualifying campaign. The announcement was widely celebrated, with supporters and pundits alike having made the case for his inclusion for some time.</p><p>The 22-year-old has been Professional Sports Academy's standout performer in midfield, registering 6 goals and 12 assists this season while consistently driving the tempo of his side's best performances. His ability to combine technical quality with intelligent positioning has marked him out as one of the most complete midfielders in the division.</p><p>This call-up is a significant milestone — and one that represents the beginning, not the ceiling, of his international career.</p>",
     featuredImage: "/blog/national-team.jpg",
     category: "News",
     author: "Gayduo Sports Agency",
