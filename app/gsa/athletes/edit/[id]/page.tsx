@@ -8,6 +8,7 @@ import { ArrowLeft, Plus, X, Upload, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AdminShell } from "@/components/admin-shell"
 import { getAthleteById, updateAthlete, deleteAthlete } from "@/lib/firestore"
+import { uploadImage } from "@/lib/storage"
 import { toast } from "sonner"
 
 const POSITIONS = [
@@ -46,6 +47,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
   const [preferredFoot, setPreferredFoot] = useState("")
   const [biography, setBiography] = useState("")
   const [mainImage, setMainImage] = useState<string | null>(null)
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null)
   const imageRef = useRef<HTMLInputElement>(null)
   const [appearances, setAppearances] = useState("")
   const [goals, setGoals] = useState("")
@@ -57,6 +59,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
   const [facebook, setFacebook] = useState("")
   const [highlightVideo, setHighlightVideo] = useState("")
   const [gallery, setGallery] = useState<string[]>([])
+  const [galleryFiles, setGalleryFiles] = useState<(File | null)[]>([])
   const galleryRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -88,6 +91,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
       setFacebook(athlete.socialLinks.facebook ?? "")
       setHighlightVideo(athlete.highlightVideo ?? "")
       setGallery(athlete.gallery)
+      setGalleryFiles(athlete.gallery.map(() => null))
       setLoading(false)
     })
   }, [id, router])
@@ -95,6 +99,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
   const handleMainImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setMainImageFile(file)
     const reader = new FileReader()
     reader.onload = (ev) => setMainImage(ev.target?.result as string)
     reader.readAsDataURL(file)
@@ -103,6 +108,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
   const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     files.forEach((file) => {
+      setGalleryFiles((prev) => [...prev, file])
       const reader = new FileReader()
       reader.onload = (ev) => setGallery((prev) => [...prev, ev.target?.result as string])
       reader.readAsDataURL(file)
@@ -118,11 +124,27 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
     e.preventDefault()
     setSaving(true)
     try {
+      const ts = Date.now()
+      const ext = (f: File) => f.name.split(".").pop() ?? "jpg"
+
+      const imageUrl = mainImageFile
+        ? await uploadImage(mainImageFile, `athletes/${slug}/profile_${ts}.${ext(mainImageFile)}`)
+        : mainImage || ""
+
+      const galleryUrls = await Promise.all(
+        gallery.map((preview, i) => {
+          const file = galleryFiles[i]
+          return file
+            ? uploadImage(file, `athletes/${slug}/gallery_${ts}_${i}.${ext(file)}`)
+            : Promise.resolve(preview)
+        })
+      )
+
       await updateAthlete(id, {
         name, slug, position, team,
         number: Number(number),
         nationality, dateOfBirth, height, preferredFoot, biography,
-        image: mainImage || "",
+        image: imageUrl,
         stats: {
           appearances: Number(appearances) || 0,
           goals: Number(goals) || 0,
@@ -130,7 +152,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
           ...(cleanSheets ? { cleanSheets: Number(cleanSheets) } : {}),
         },
         achievements: achievements.filter((a) => a.year && a.title),
-        gallery,
+        gallery: galleryUrls,
         socialLinks: {
           ...(instagram ? { instagram } : {}),
           ...(twitter ? { twitter } : {}),
@@ -270,7 +292,7 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
                   <Image src={mainImage} alt="Preview" fill className="object-cover" />
                 </div>
                 <button type="button"
-                  onClick={() => { setMainImage(null); if (imageRef.current) imageRef.current.value = "" }}
+                  onClick={() => { setMainImage(null); setMainImageFile(null); if (imageRef.current) imageRef.current.value = "" }}
                   className="absolute -top-2 -right-2 p-1.5 bg-background border border-border rounded-full shadow">
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -340,7 +362,10 @@ function EditAthleteContent({ params }: EditAthletePageProps) {
               {gallery.map((img, i) => (
                 <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
                   <Image src={img} alt={`Gallery ${i + 1}`} fill className="object-cover" />
-                  <button type="button" onClick={() => setGallery((prev) => prev.filter((_, idx) => idx !== i))}
+                  <button type="button" onClick={() => {
+                    setGallery((prev) => prev.filter((_, idx) => idx !== i))
+                    setGalleryFiles((prev) => prev.filter((_, idx) => idx !== i))
+                  }}
                     className="absolute top-1 right-1 p-1 bg-background/80 rounded-full">
                     <X className="h-3 w-3" />
                   </button>

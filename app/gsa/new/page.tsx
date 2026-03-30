@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import { AdminShell } from "@/components/admin-shell"
 import { createBlogPost } from "@/lib/firestore"
+import { uploadImage } from "@/lib/storage"
 import { categories } from "@/lib/data"
 import { toast } from "sonner"
 
@@ -28,6 +29,7 @@ function NewPostContent() {
   const [content, setContent] = useState("")
   const [category, setCategory] = useState("")
   const [featuredImage, setFeaturedImage] = useState<string | null>(null)
+  const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null)
   const [featured, setFeatured] = useState(false)
   const [seoTitle, setSeoTitle] = useState("")
   const [seoDescription, setSeoDescription] = useState("")
@@ -50,6 +52,7 @@ function NewPostContent() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setFeaturedImageFile(file)
       const reader = new FileReader()
       reader.onload = (e) => setFeaturedImage(e.target?.result as string)
       reader.readAsDataURL(file)
@@ -60,13 +63,19 @@ function NewPostContent() {
     e.preventDefault()
     setSaving(true)
     try {
+      let imageUrl = featuredImage || ""
+      if (featuredImageFile) {
+        const ext = featuredImageFile.name.split(".").pop() ?? "jpg"
+        imageUrl = await uploadImage(featuredImageFile, `blog/${slug}/featured_${Date.now()}.${ext}`)
+      }
+
       await createBlogPost({
         title,
         slug,
         excerpt,
         content,
         category,
-        featuredImage: featuredImage || "",
+        featuredImage: imageUrl,
         featured,
         author: "Gayduo Sports Agency",
         publishedAt: new Date().toISOString().split("T")[0],
@@ -205,7 +214,7 @@ function NewPostContent() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setFeaturedImage(null); if (fileInputRef.current) fileInputRef.current.value = "" }}
+                      onClick={() => { setFeaturedImage(null); setFeaturedImageFile(null); if (fileInputRef.current) fileInputRef.current.value = "" }}
                       className="absolute top-2 right-2 p-1.5 bg-background/90 rounded-full hover:bg-background transition-colors"
                     >
                       <X className="h-4 w-4" />

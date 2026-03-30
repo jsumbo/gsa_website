@@ -18,3 +18,7 @@ node_modules
 .claude/
 .playwright-mcp/
 .agents/
+
+# Build artifacts
+tsconfig.tsbuildinfo
+cors.json
